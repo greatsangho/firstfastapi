@@ -25,7 +25,7 @@ def update_user(
     user_service: UserService = Depends(Provide[Container.user_service]),
     # user_service : UserService = Depends(container.user_service.provider),
     ):
-    print("############",type(user_service))
+    # print("############",type(user_service))
     user = user_service.update_user(
         user_id=user_id,
         name=user.name,
@@ -41,7 +41,7 @@ def create_user(
     user_service: UserService = Depends(Provide[Container.user_service]),
     # user_service: UserService = Depends(Provide["user_service"]),
     ):
-    print("############",type(user_service))
+    # print("############",type(user_service))
     created_user = user_service.create_user(
         name=user.name,
         email=user.email,
@@ -50,3 +50,16 @@ def create_user(
 
     return created_user
 
+
+@router.get("")
+@inject
+def get_users(
+    page: int = 1,
+    items_per_page: int = 10,
+    user_service: UserService = Depends(Provide[Container.user_service]),
+    ):
+    total_count, users = user_service.get_users(page, items_per_page)
+    users = user_service.get_users()
+    return {
+        "users": users,
+    }
