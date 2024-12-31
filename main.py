@@ -7,7 +7,14 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
-app.container = Container()
+
+
+# app.container = Container()
+# Dependency Injector 컨테이너 생성 및 FastAPI와 연결
+container = Container()
+container.wire(modules=["user.interface.controllers.user_controller"])  # 주입할 모듈 지정
+app.container = container
+# app.container = Container()
 app.include_router(user_routers)
 
 @app.exception_handler(RequestValidationError)
