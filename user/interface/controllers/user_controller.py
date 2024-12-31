@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+from dependency_injector.wiring import inject, Provide
+from containers import Container
+from typing import Annotated
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from user.application.user_service import UserService
@@ -11,8 +14,13 @@ class CreateUserBody(BaseModel):
     password: str
 
 @router.post("", status_code=201)
-def create_user(user: CreateUserBody):
-    user_service = UserService()
+@inject
+def create_user(
+    user : CreateUserBody,
+    user_service: UserService = Depends(Provide[Container.user_service]),
+    # user_service: UserService = Depends(Provide["user_service"]),
+    ):
+
     created_user = user_service.create_user(
         name=user.name,
         email=user.email,
