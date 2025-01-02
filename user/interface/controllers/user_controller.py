@@ -11,8 +11,8 @@ from user.application.user_service import UserService
 
 router = APIRouter(prefix="/users")
 
-container = Container()
-container.wire(modules=["user.interface.controllers.user_controller"])  # 필요한 모듈 주입
+# container = Container()
+# container.wire(modules=["user.interface.controllers.user_controller"])  # 필요한 모듈 주입
 # app.container = container
 
 class CreateUserBody(BaseModel):
