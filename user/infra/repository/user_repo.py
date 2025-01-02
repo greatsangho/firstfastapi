@@ -1,9 +1,11 @@
 from fastapi import HTTPException
-from utils.db_utils import row_to_dict
+
 from database import SessionLocal
 from user.domain.repository.user_repo import IUserRepository
 from user.domain.user import User as UserVO
 from user.infra.db_models.user import User
+from utils.db_utils import row_to_dict
+
 
 class UserRepository(IUserRepository):
     def save(self, user: UserVO):
@@ -12,16 +14,14 @@ class UserRepository(IUserRepository):
             name=user.name,
             email=user.email,
             password=user.password,
+            memo=user.memo,
             created_at=user.created_at,
             updated_at=user.updated_at,
         )
 
         with SessionLocal() as db:
-            try:
-                db.add(new_user)
-                db.commit()
-            finally:
-                db.close()
+            db.add(new_user)
+            db.commit()
 
     def find_by_email(self, email: str) -> UserVO:
         with SessionLocal() as db:
@@ -55,9 +55,27 @@ class UserRepository(IUserRepository):
             db.commit()
 
         return user
-    
-    def get_users(self):
-        with SessionLocal() as db:
-            users = db.query(User).all()
 
-        return [UserVO(**row_to_dict(user)) for user in users]
+    def get_users(
+        self,
+        page: int = 1,
+        items_per_page: int = 10,
+    ) -> tuple[int, list[UserVO]]:
+        with SessionLocal() as db:
+            query = db.query(User)
+            total_count = query.count()
+
+            offset = (page - 1) * items_per_page
+            users = query.limit(items_per_page).offset(offset).all()
+
+        return total_count, [UserVO(**row_to_dict(user)) for user in users]
+
+    def delete(self, id: str):
+        with SessionLocal() as db:
+            user = db.query(User).filter(User.id == id).first()
+
+            if not user:
+                raise HTTPException(status_code=422)
+
+            db.delete(user)
+            db.commit()
