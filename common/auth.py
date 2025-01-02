@@ -9,8 +9,8 @@ from jose import JWTError, jwt
 
 settings = get_settings()
 
-# SECRET_KEY = settings.jwt_secret
-SECRET_KEY = 'THIS_IS_SUPER_SECRET_KEY'
+SECRET_KEY = settings.jwt_secret
+# SECRET_KEY = 'THIS_IS_SUPER_SECRET_KEY'
 ALGORITHM = "HS256"
 
 
